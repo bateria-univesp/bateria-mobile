@@ -6,7 +6,16 @@ class SearchPage extends StatelessWidget {
 
   // The following location and zoom put São Paulo in focus.
   final LatLng _initialLocation = const LatLng(-23.5499598, -46.6336663);
-  final double _initialZoom = 11;
+  final double _initialZoom = 10;
+
+  final Marker _sampleMarker = const Marker(
+    markerId: MarkerId('sample-location'),
+    position: LatLng(-23.5551967, -46.4151768),
+    infoWindow: InfoWindow(
+      title: 'Ecoponto Guaianazes',
+      snippet: 'R. da Passagem Funda, 250',
+    ),
+  );
 
   @override
   Widget build(BuildContext context) {
@@ -19,6 +28,9 @@ class SearchPage extends StatelessWidget {
           target: _initialLocation,
           zoom: _initialZoom,
         ),
+        markers: {
+          _sampleMarker,
+        },
       ),
     );
   }
