@@ -124,6 +124,7 @@ class _SearchPageMapState extends ConsumerState<SearchPageMap> {
         markers: ref.watch(markers),
         onCameraMove: _clusterManager.onCameraMove,
         onCameraIdle: _clusterManager.updateMap,
+        zoomControlsEnabled: false,
         initialCameraPosition: CameraPosition(
           target: _initialLocation,
           zoom: _initialZoom,
