@@ -47,10 +47,16 @@ android {
         applicationId "br.univesp.bateria.bateria_mobile"
         // You can update the following values to match your application needs.
         // For more information, see: https://docs.flutter.dev/deployment/android#reviewing-the-build-configuration.
-        minSdkVersion flutter.minSdkVersion
+        // minSdkVersion flutter.minSdkVersion
+        minSdkVersion 20 // Minimum SDK version needed for use with Google Maps
         targetSdkVersion flutter.targetSdkVersion
         versionCode flutterVersionCode.toInteger()
         versionName flutterVersionName
+
+        // The "+=" is necessary so that it increments the existing manifest placeholders.
+        manifestPlaceholders += [
+            mapsApiKey: "$System.env.MAPS_API_KEY"
+        ]
     }
 
     buildTypes {
