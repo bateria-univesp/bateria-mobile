@@ -1,3 +1,5 @@
+import 'dart:ui';
+
 import 'package:bateria_mobile/infrastructure/bateria_api/client.dart';
 import 'package:bateria_mobile/main.dart';
 import 'package:bateria_mobile/models/place.dart';
@@ -28,6 +30,70 @@ class _SearchPageMapState extends ConsumerState<SearchPageMap> {
     _clusterManager.setItems(places);
   }
 
+  Future<Marker> _markerBuilder(Cluster<Place> cluster) async {
+    return Marker(
+      markerId: MarkerId(cluster.getId()),
+      position: cluster.location,
+      icon: cluster.isMultiple
+          ? await _getClusterIcon(cluster)
+          : BitmapDescriptor.defaultMarker,
+    );
+  }
+
+  Future<BitmapDescriptor> _getClusterIcon(Cluster<Place> cluster) async {
+    final PictureRecorder pictureRecorder = PictureRecorder();
+    final Canvas canvas = Canvas(pictureRecorder);
+
+    final size = cluster.isMultiple ? 90 : 75;
+    const strokeWidth = 2.0;
+
+    final Paint redPaint = Paint()
+      ..color = const Color.fromARGB(255, 234, 67, 52);
+    final Paint whitePaint = Paint()
+      ..color = const Color.fromARGB(255, 255, 255, 255)
+      ..strokeWidth = strokeWidth * 2
+      ..style = PaintingStyle.stroke;
+
+    canvas.drawCircle(
+      Offset(size / 2, size / 2),
+      size / 2,
+      whitePaint,
+    );
+    canvas.drawCircle(
+      Offset(size / 2, size / 2),
+      size / 2 - strokeWidth,
+      redPaint,
+    );
+
+    if (cluster.isMultiple) {
+      final painter = TextPainter(
+        textDirection: TextDirection.ltr,
+        text: TextSpan(
+          text: cluster.count.toString(),
+          style: TextStyle(
+            fontSize: size / 2.5,
+            color: whitePaint.color,
+          ),
+        ),
+      );
+
+      painter.layout();
+      painter.paint(
+        canvas,
+        Offset(size / 2 - painter.width / 2, size / 2 - painter.height / 2),
+      );
+    }
+
+    final image = await pictureRecorder.endRecording().toImage(size, size);
+    final imageBytes = await image.toByteData(format: ImageByteFormat.png);
+
+    if (imageBytes == null) {
+      throw Exception('Error while creating marker\'s bitmap.');
+    }
+
+    return BitmapDescriptor.fromBytes(imageBytes.buffer.asUint8List());
+  }
+
   _updateMarkers(Set<Marker> clusteredMarkers) {
     ref.read(markers.state).state = clusteredMarkers;
   }
@@ -40,7 +106,11 @@ class _SearchPageMapState extends ConsumerState<SearchPageMap> {
   void initState() {
     super.initState();
 
-    _clusterManager = ClusterManager([], _updateMarkers);
+    _clusterManager = ClusterManager(
+      [],
+      _updateMarkers,
+      markerBuilder: _markerBuilder,
+    );
     _apiClient = ref.read(bateriaApiClientProvider);
     _fetchCollectPoints();
   }
