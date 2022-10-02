@@ -110,6 +110,7 @@ class _SearchPageMapState extends ConsumerState<SearchPageMap> {
       [],
       _updateMarkers,
       markerBuilder: _markerBuilder,
+      levels: [1, 4.25, 6.75, 8.25, 11.5, 14.5, 16.0, 16.5, 18.0, 20.0],
     );
     _apiClient = ref.read(bateriaApiClientProvider);
     _fetchCollectPoints();
