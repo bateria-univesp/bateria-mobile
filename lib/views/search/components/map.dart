@@ -56,13 +56,13 @@ class _SearchPageMapState extends ConsumerState<SearchPageMap> {
 
     canvas.drawCircle(
       Offset(size / 2, size / 2),
-      size / 2,
-      whitePaint,
+      size / 2 - strokeWidth,
+      redPaint,
     );
     canvas.drawCircle(
       Offset(size / 2, size / 2),
       size / 2 - strokeWidth,
-      redPaint,
+      whitePaint,
     );
 
     if (cluster.isMultiple) {
