@@ -1,4 +1,4 @@
-import 'package:bateria_mobile/views/search/infrastructure/bateria_api/client.dart';
+import 'package:bateria_mobile/infrastructure/bateria_api/client.dart';
 import 'package:bateria_mobile/views/search/page.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
