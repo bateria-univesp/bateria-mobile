@@ -37,11 +37,7 @@ class SearchPageState extends ConsumerState<SearchPage> {
   void initState() {
     super.initState();
 
-    _clusterManager = ClusterManager(
-      [],
-      _updateMarkers,
-      extraPercent: 25,
-    );
+    _clusterManager = ClusterManager([], _updateMarkers);
     _apiClient = ref.read(bateriaApiClientProvider);
     _fetchCollectPoints();
   }
