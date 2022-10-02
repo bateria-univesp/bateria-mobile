@@ -1,27 +1,12 @@
 import 'package:bateria_mobile/main.dart';
-import 'package:bateria_mobile/models/collect_point.dart';
+import 'package:bateria_mobile/models/place.dart';
 import 'package:bateria_mobile/views/search/infrastructure/bateria_api/client.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:google_maps_cluster_manager/google_maps_cluster_manager.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 
-final collectPointsList = StateProvider((ref) => <CollectPoint>[]);
-final collectPointsMarkers = Provider((ref) {
-  final list = ref.watch(collectPointsList);
-
-  return list
-      .map(
-        (item) => Marker(
-          markerId: MarkerId(item.name),
-          infoWindow: InfoWindow(
-            title: item.name,
-            snippet: item.address,
-          ),
-          position: LatLng(item.latitude, item.longitude),
-        ),
-      )
-      .toSet();
-});
+final markers = StateProvider((ref) => <Marker>{});
 
 class SearchPage extends ConsumerStatefulWidget {
   const SearchPage({super.key});
@@ -32,23 +17,37 @@ class SearchPage extends ConsumerStatefulWidget {
 
 class SearchPageState extends ConsumerState<SearchPage> {
   late BateriaApiClient _apiClient;
+  late ClusterManager<Place> _clusterManager;
 
   _fetchCollectPoints() async {
-    final collectPoints = await _apiClient.fetchCollectPoints();
-    ref.read(collectPointsList.state).state = collectPoints;
+    final points = await _apiClient.fetchCollectPoints();
+    final places = points.map((x) => Place.fromCollectPoint(x)).toList();
+    _clusterManager.setItems(places);
+  }
+
+  _updateMarkers(Set<Marker> clusteredMarkers) {
+    ref.read(markers.state).state = clusteredMarkers;
+  }
+
+  void _onMapCreated(GoogleMapController controller) {
+    _clusterManager.setMapId(controller.mapId);
   }
 
   @override
   void initState() {
     super.initState();
 
+    _clusterManager = ClusterManager(
+      [],
+      _updateMarkers,
+      extraPercent: 25,
+    );
     _apiClient = ref.read(bateriaApiClientProvider);
     _fetchCollectPoints();
   }
 
-  // The following location and zoom put São Paulo in focus.
   final LatLng _initialLocation = const LatLng(-23.5499598, -46.6336663);
-  final double _initialZoom = 15;
+  final double _initialZoom = 12;
 
   @override
   Widget build(BuildContext context) {
@@ -58,14 +57,15 @@ class SearchPageState extends ConsumerState<SearchPage> {
           title: const Text('Bateria'),
         ),
         body: Consumer(builder: (context, ref, _) {
-          final markers = ref.watch(collectPointsMarkers);
-
           return GoogleMap(
+            onMapCreated: _onMapCreated,
+            markers: ref.watch(markers),
+            onCameraMove: _clusterManager.onCameraMove,
+            onCameraIdle: _clusterManager.updateMap,
             initialCameraPosition: CameraPosition(
               target: _initialLocation,
               zoom: _initialZoom,
             ),
-            markers: markers,
           );
         }),
       );

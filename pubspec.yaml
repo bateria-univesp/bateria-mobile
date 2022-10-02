@@ -38,6 +38,7 @@ dependencies:
   cupertino_icons: ^1.0.2
   google_maps_flutter: ^2.2.1
   google_maps_flutter_web: ^0.4.0+3
+  google_maps_cluster_manager: ^3.0.0+1
   flutter_riverpod: ^2.0.0
   dio: ^4.0.6
   freezed_annotation: ^2.1.0
