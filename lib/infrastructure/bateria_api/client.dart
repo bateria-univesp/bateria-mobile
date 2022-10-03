@@ -1,5 +1,5 @@
 import 'package:bateria_mobile/models/collect_point.dart';
-import 'package:bateria_mobile/views/search/infrastructure/bateria_api/configuration.dart';
+import 'package:bateria_mobile/infrastructure/bateria_api/configuration.dart';
 import 'package:dio/dio.dart';
 
 class BateriaApiClient {

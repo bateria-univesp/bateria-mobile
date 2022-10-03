@@ -1,9 +1,12 @@
-import 'package:bateria_mobile/views/search/infrastructure/bateria_api/client.dart';
+import 'package:bateria_mobile/infrastructure/bateria_api/client.dart';
+import 'package:bateria_mobile/infrastructure/google_maps_api/client.dart';
 import 'package:bateria_mobile/views/search/page.dart';
+import 'package:bateria_mobile/views/theme.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
-final bateriaApiClientProvider = Provider((ref) => BateriaApiClient());
+final bateriaApiClient = Provider((ref) => BateriaApiClient());
+final googleMapsApiClient = Provider((ref) => GoogleMapsApiClient());
 
 void main() {
   runApp(
@@ -19,9 +22,10 @@ class BateriaApp extends StatelessWidget {
   // This widget is the root of your application.
   @override
   Widget build(BuildContext context) {
-    return const MaterialApp(
+    return MaterialApp(
       title: 'Flutter Demo',
-      home: SearchPage(),
+      theme: BateriaTheme.buildTheme(),
+      home: const SearchPage(),
     );
   }
 }
