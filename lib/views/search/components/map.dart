@@ -2,7 +2,8 @@ import 'dart:ui';
 
 import 'package:bateria_mobile/infrastructure/bateria_api/client.dart';
 import 'package:bateria_mobile/main.dart';
-import 'package:bateria_mobile/models/place.dart';
+import 'package:bateria_mobile/models/cluster_place.dart';
+import 'package:bateria_mobile/views/search/page.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:google_maps_cluster_manager/google_maps_cluster_manager.dart';
@@ -22,15 +23,16 @@ class _SearchPageMapState extends ConsumerState<SearchPageMap> {
   final double _initialZoom = 12;
 
   late BateriaApiClient _apiClient;
-  late ClusterManager<Place> _clusterManager;
+  late ClusterManager<ClusterPlace> _clusterManager;
+  late GoogleMapController _mapController;
 
   _fetchCollectPoints() async {
     final points = await _apiClient.fetchCollectPoints();
-    final places = points.map((x) => Place.fromCollectPoint(x)).toList();
+    final places = points.map((x) => ClusterPlace.fromCollectPoint(x)).toList();
     _clusterManager.setItems(places);
   }
 
-  Future<Marker> _markerBuilder(Cluster<Place> cluster) async {
+  Future<Marker> _markerBuilder(Cluster<ClusterPlace> cluster) async {
     return Marker(
       markerId: MarkerId(cluster.getId()),
       position: cluster.location,
@@ -40,7 +42,8 @@ class _SearchPageMapState extends ConsumerState<SearchPageMap> {
     );
   }
 
-  Future<BitmapDescriptor> _getClusterIcon(Cluster<Place> cluster) async {
+  Future<BitmapDescriptor> _getClusterIcon(
+      Cluster<ClusterPlace> cluster) async {
     final PictureRecorder pictureRecorder = PictureRecorder();
     final Canvas canvas = Canvas(pictureRecorder);
 
@@ -94,12 +97,30 @@ class _SearchPageMapState extends ConsumerState<SearchPageMap> {
     return BitmapDescriptor.fromBytes(imageBytes.buffer.asUint8List());
   }
 
-  _updateMarkers(Set<Marker> clusteredMarkers) {
+  void _updateMarkers(Set<Marker> clusteredMarkers) {
     ref.read(markers.state).state = clusteredMarkers;
   }
 
   void _onMapCreated(GoogleMapController controller) {
+    _mapController = controller;
     _clusterManager.setMapId(controller.mapId);
+  }
+
+  void _handleAddressUpdate(oldAddress, newAddress) {
+    if (newAddress == null) {
+      // No address to handle.
+      return;
+    }
+
+    final viewport = newAddress.geometry.viewport;
+    final cameraUpdate = CameraUpdate.newLatLngBounds(
+        LatLngBounds(
+          southwest: LatLng(viewport.southwest.lat, viewport.southwest.lng),
+          northeast: LatLng(viewport.northeast.lat, viewport.northeast.lng),
+        ),
+        8);
+
+    _mapController.moveCamera(cameraUpdate);
   }
 
   @override
@@ -112,13 +133,16 @@ class _SearchPageMapState extends ConsumerState<SearchPageMap> {
       markerBuilder: _markerBuilder,
       levels: [1, 4.25, 6.75, 8.25, 11.5, 14.5, 16.0, 16.5, 18.0, 20.0],
     );
-    _apiClient = ref.read(bateriaApiClientProvider);
+    _apiClient = ref.read(bateriaApiClient);
+
     _fetchCollectPoints();
   }
 
   @override
   Widget build(BuildContext context) {
     return Consumer(builder: (context, ref, _) {
+      ref.listen(currentMapsAddress, _handleAddressUpdate);
+
       return GoogleMap(
         onMapCreated: _onMapCreated,
         markers: ref.watch(markers),
