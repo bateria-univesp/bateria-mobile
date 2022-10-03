@@ -15,10 +15,16 @@ class SearchPageSearchDelegate extends SearchDelegate<MapsAddress?> {
   String? get searchFieldLabel => 'Busque por endereço';
 
   Future<void> _fetchAddresses(String query, WidgetRef ref) async {
+    // TODO: fix this await. It's only used not to run the change in the build.
+    await Future.delayed(const Duration(seconds: 0));
+
+    final loadingState = ref.read(addressesLoading.state);
+    loadingState.state = true;
+
     final apiClient = ref.read(googleMapsApiClient);
     final results = await apiClient.fetchPlacesByText(query);
 
-    ref.read(addressesLoading.state).state = false;
+    loadingState.state = false;
     ref.read(addresses.state).state = results;
   }
 
