@@ -5,11 +5,9 @@ class BateriaTheme {
     return ThemeData(
       colorScheme: ColorScheme.fromSwatch(
         primarySwatch: Colors.red,
-        cardColor: Colors.red[50],
       ),
       appBarTheme: const AppBarTheme(
-        elevation: 8,
-        shadowColor: Colors.black,
+        elevation: 2,
       ),
       useMaterial3: true,
     );
