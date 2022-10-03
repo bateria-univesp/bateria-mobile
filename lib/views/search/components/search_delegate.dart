@@ -31,22 +31,28 @@ class SearchPageSearchDelegate extends SearchDelegate<MapsAddress?> {
   @override
   List<Widget>? buildActions(BuildContext context) {
     return [
-      IconButton(
-        onPressed: () {
-          query = '';
-        },
-        icon: const Icon(Icons.clear),
+      Tooltip(
+        message: 'Limpar busca',
+        child: IconButton(
+          onPressed: () {
+            query = '';
+          },
+          icon: const Icon(Icons.clear),
+        ),
       ),
     ];
   }
 
   @override
   Widget? buildLeading(BuildContext context) {
-    return IconButton(
-      onPressed: () {
-        close(context, null);
-      },
-      icon: const Icon(Icons.arrow_back),
+    return Tooltip(
+      message: 'Voltar ao mapa',
+      child: IconButton(
+        onPressed: () {
+          close(context, null);
+        },
+        icon: const Icon(Icons.arrow_back),
+      ),
     );
   }
 
