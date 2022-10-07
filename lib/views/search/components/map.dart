@@ -136,7 +136,7 @@ class _SearchPageMapState extends ConsumerState<SearchPageMap> {
         ),
         8);
 
-    _mapController.moveCamera(cameraUpdate);
+    _mapController.animateCamera(cameraUpdate);
   }
 
   @override
