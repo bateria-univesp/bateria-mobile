@@ -34,12 +34,12 @@ class _SearchPageMapState extends ConsumerState<SearchPageMap> {
 
   Future<Marker> _markerBuilder(Cluster<ClusterPlace> cluster) async {
     return Marker(
-      markerId: MarkerId(cluster.getId()),
-      position: cluster.location,
-      icon: cluster.isMultiple
-          ? await _getClusterIcon(cluster)
-          : BitmapDescriptor.defaultMarker,
-    );
+        markerId: MarkerId(cluster.getId()),
+        position: cluster.location,
+        icon: cluster.isMultiple
+            ? await _getClusterIcon(cluster)
+            : BitmapDescriptor.defaultMarker,
+        onTap: () => _onClusterTap(cluster));
   }
 
   Future<BitmapDescriptor> _getClusterIcon(
@@ -99,6 +99,22 @@ class _SearchPageMapState extends ConsumerState<SearchPageMap> {
 
   void _updateMarkers(Set<Marker> clusteredMarkers) {
     ref.read(markers.state).state = clusteredMarkers;
+  }
+
+  void _onClusterTap(Cluster<ClusterPlace> cluster) {
+    if (cluster.isMultiple) {
+      // Zoom in the area
+      _zoomIntoLocation(cluster.location);
+    } else {
+      // Show details
+      debugPrint('clusterId: ${cluster.getId()}');
+    }
+  }
+
+  Future _zoomIntoLocation(LatLng location) async {
+    final currentZoom = await _mapController.getZoomLevel();
+    await _mapController
+        .animateCamera(CameraUpdate.newLatLngZoom(location, currentZoom * 1.1));
   }
 
   void _onMapCreated(GoogleMapController controller) {
