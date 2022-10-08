@@ -3,6 +3,8 @@ import 'dart:ui';
 import 'package:bateria_mobile/infrastructure/bateria_api/client.dart';
 import 'package:bateria_mobile/main.dart';
 import 'package:bateria_mobile/models/cluster_place.dart';
+import 'package:bateria_mobile/models/collect_point.dart';
+import 'package:bateria_mobile/views/search/components/details_modal.dart';
 import 'package:bateria_mobile/views/search/page.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -10,6 +12,7 @@ import 'package:google_maps_cluster_manager/google_maps_cluster_manager.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 
 final markers = StateProvider((ref) => <Marker>{});
+final collectPoint = StateProvider<CollectPoint?>((ref) => null);
 
 class SearchPageMap extends ConsumerStatefulWidget {
   const SearchPageMap({Key? key}) : super(key: key);
@@ -23,7 +26,7 @@ class _SearchPageMapState extends ConsumerState<SearchPageMap> {
   final double _initialZoom = 12;
 
   late BateriaApiClient _apiClient;
-  late ClusterManager<ClusterPlace> _clusterManager;
+  late ClusterManager<ClusterPlace<CollectPoint>> _clusterManager;
   late GoogleMapController _mapController;
 
   _fetchCollectPoints() async {
@@ -32,7 +35,8 @@ class _SearchPageMapState extends ConsumerState<SearchPageMap> {
     _clusterManager.setItems(places);
   }
 
-  Future<Marker> _markerBuilder(Cluster<ClusterPlace> cluster) async {
+  Future<Marker> _markerBuilder(
+      Cluster<ClusterPlace<CollectPoint>> cluster) async {
     return Marker(
         markerId: MarkerId(cluster.getId()),
         position: cluster.location,
@@ -101,13 +105,18 @@ class _SearchPageMapState extends ConsumerState<SearchPageMap> {
     ref.read(markers.state).state = clusteredMarkers;
   }
 
-  void _onClusterTap(Cluster<ClusterPlace> cluster) {
+  void _onClusterTap(Cluster<ClusterPlace<CollectPoint>> cluster) {
     if (cluster.isMultiple) {
       // Zoom in the area
       _zoomIntoLocation(cluster.location);
     } else {
-      // Show details
-      debugPrint('clusterId: ${cluster.getId()}');
+      // If it's not multiple, then it *must* contain a single item.
+      // That item has a reference to the collect point.
+      final selectedPoint = cluster.items.elementAt(0).data;
+      ref.read(collectPoint.state).state = selectedPoint;
+
+      showModalBottomSheet(
+          context: context, builder: (context) => const DetailsModal());
     }
   }
 
