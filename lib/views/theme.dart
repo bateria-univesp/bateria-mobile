@@ -1,15 +1,17 @@
 import 'package:flutter/material.dart';
 
+const _seedColor = Color(0xff2dec96);
+
 class BateriaTheme {
   static ThemeData buildTheme() {
     return ThemeData(
       colorScheme: ColorScheme.fromSeed(
-        seedColor: const Color(0xff20e9b3),
+        seedColor: _seedColor,
         brightness: Brightness.light,
       ),
       appBarTheme: const AppBarTheme(
         elevation: 8,
-        backgroundColor: Color(0xff2dec96),
+        backgroundColor: _seedColor,
         shadowColor: Colors.black,
       ),
       useMaterial3: true,

@@ -48,28 +48,29 @@ class _SearchPageMapState extends ConsumerState<SearchPageMap> {
 
   Future<BitmapDescriptor> _getClusterIcon(
       Cluster<ClusterPlace> cluster) async {
-    final PictureRecorder pictureRecorder = PictureRecorder();
-    final Canvas canvas = Canvas(pictureRecorder);
+    final pictureRecorder = PictureRecorder();
+    final canvas = Canvas(pictureRecorder);
+    final theme = Theme.of(context);
 
     final size = cluster.isMultiple ? 90 : 75;
     const strokeWidth = 2.0;
 
-    final Paint redPaint = Paint()
-      ..color = const Color.fromARGB(255, 234, 67, 52);
-    final Paint whitePaint = Paint()
-      ..color = const Color.fromARGB(255, 255, 255, 255)
+    final Paint backgroundPaint = Paint()
+      ..color = theme.appBarTheme.backgroundColor!;
+    final Paint foregroundPaint = Paint()
+      ..color = theme.colorScheme.onSurface
       ..strokeWidth = strokeWidth * 2
       ..style = PaintingStyle.stroke;
 
     canvas.drawCircle(
       Offset(size / 2, size / 2),
       size / 2 - strokeWidth,
-      redPaint,
+      backgroundPaint,
     );
     canvas.drawCircle(
       Offset(size / 2, size / 2),
       size / 2 - strokeWidth,
-      whitePaint,
+      foregroundPaint,
     );
 
     if (cluster.isMultiple) {
@@ -79,7 +80,7 @@ class _SearchPageMapState extends ConsumerState<SearchPageMap> {
           text: cluster.count.toString(),
           style: TextStyle(
             fontSize: size / 2.5,
-            color: whitePaint.color,
+            color: foregroundPaint.color,
           ),
         ),
       );
