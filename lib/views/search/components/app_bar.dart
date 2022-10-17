@@ -9,7 +9,17 @@ class SearchPageAppBar extends ConsumerWidget implements PreferredSizeWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     return AppBar(
-      title: const Text('Bateria'),
+      title: Wrap(
+        crossAxisAlignment: WrapCrossAlignment.center,
+        spacing: 12,
+        children: [
+          Image.asset(
+            'assets/images/battery_logo.png',
+            height: 24,
+          ),
+          const Text('Bateria')
+        ],
+      ),
       actions: const [
         SearchByLocationButton(),
         SearchByTextButton(),
