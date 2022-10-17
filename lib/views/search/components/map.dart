@@ -40,9 +40,7 @@ class _SearchPageMapState extends ConsumerState<SearchPageMap> {
     return Marker(
         markerId: MarkerId(cluster.getId()),
         position: cluster.location,
-        icon: cluster.isMultiple
-            ? await _getClusterIcon(cluster)
-            : BitmapDescriptor.defaultMarker,
+        icon: await _getClusterIcon(cluster),
         onTap: () => _onClusterTap(cluster));
   }
 
@@ -52,28 +50,42 @@ class _SearchPageMapState extends ConsumerState<SearchPageMap> {
     final canvas = Canvas(pictureRecorder);
     final theme = Theme.of(context);
 
-    final size = cluster.isMultiple ? 90 : 75;
-    const strokeWidth = 2.0;
+    final size = cluster.isMultiple ? 90.0 : 90.0;
+    const strokeWidth = 2;
 
     final Paint backgroundPaint = Paint()
       ..color = theme.appBarTheme.backgroundColor!;
+    final Paint backgroundDarkPaint = Paint()..color = Colors.black26;
     final Paint foregroundPaint = Paint()
       ..color = theme.colorScheme.onSurface
       ..strokeWidth = strokeWidth * 2
       ..style = PaintingStyle.stroke;
+    final markerPath = Path();
 
-    canvas.drawCircle(
-      Offset(size / 2, size / 2),
-      size / 2 - strokeWidth,
-      backgroundPaint,
-    );
-    canvas.drawCircle(
-      Offset(size / 2, size / 2),
-      size / 2 - strokeWidth,
-      foregroundPaint,
-    );
+    markerPath.moveTo(size * 1 / 6, size * 1 / 3);
+    markerPath.cubicTo(
+        size * 1 / 6, size * 1 / 3, size * 1 / 6, 0, size / 2, 0);
+    markerPath.cubicTo(
+        size / 2, 0, size * 5 / 6, 0, size * 5 / 6, size * 1 / 3);
+    markerPath.cubicTo(
+        size * 5 / 6, size * 1 / 3, size * 3 / 4, size * 4 / 6, size / 2, size);
+    markerPath.cubicTo(
+        size / 2, size, size * 1 / 4, size * 4 / 6, size * 1 / 6, size * 1 / 3);
+
+    canvas.translate(strokeWidth.toDouble(), strokeWidth.toDouble());
 
     if (cluster.isMultiple) {
+      canvas.drawCircle(
+        Offset(size / 2, size / 2),
+        size / 2 - strokeWidth,
+        backgroundPaint,
+      );
+      canvas.drawCircle(
+        Offset(size / 2, size / 2),
+        size / 2 - strokeWidth,
+        foregroundPaint,
+      );
+
       final painter = TextPainter(
         textDirection: TextDirection.ltr,
         text: TextSpan(
@@ -90,9 +102,17 @@ class _SearchPageMapState extends ConsumerState<SearchPageMap> {
         canvas,
         Offset(size / 2 - painter.width / 2, size / 2 - painter.height / 2),
       );
+    } else {
+      canvas.drawPath(markerPath, backgroundPaint);
+      canvas.drawPath(markerPath, foregroundPaint);
+      canvas.drawCircle(
+          Offset(size / 2, size * 1 / 3), size / 6, backgroundDarkPaint);
     }
 
-    final image = await pictureRecorder.endRecording().toImage(size, size);
+    final image = await pictureRecorder.endRecording().toImage(
+          size.toInt() + strokeWidth * 2,
+          size.toInt() + strokeWidth * 2,
+        );
     final imageBytes = await image.toByteData(format: ImageByteFormat.png);
 
     if (imageBytes == null) {
