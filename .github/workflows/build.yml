@@ -1,5 +1,4 @@
 name: Bateria mobile build
-run-name: ${{ github.actor }} is building the Bateria mobile app
 
 on:
   push:
