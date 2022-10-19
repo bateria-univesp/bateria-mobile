@@ -5,6 +5,7 @@ import 'package:bateria_mobile/main.dart';
 import 'package:bateria_mobile/models/cluster_place.dart';
 import 'package:bateria_mobile/models/collect_point.dart';
 import 'package:bateria_mobile/views/search/components/details_modal.dart';
+import 'package:bateria_mobile/views/search/components/map_styles.dart';
 import 'package:bateria_mobile/views/search/page.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -147,9 +148,10 @@ class _SearchPageMapState extends ConsumerState<SearchPageMap> {
         .animateCamera(CameraUpdate.newLatLngZoom(location, currentZoom * 1.1));
   }
 
-  void _onMapCreated(GoogleMapController controller) {
+  Future<void> _onMapCreated(GoogleMapController controller) async {
     _mapController = controller;
     _clusterManager.setMapId(controller.mapId);
+    _mapController.setMapStyle(await MapStyles.getStyles(context));
   }
 
   void _handleAddressUpdate(oldAddress, newAddress) {
