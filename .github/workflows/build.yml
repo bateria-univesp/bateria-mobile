@@ -29,11 +29,11 @@ jobs:
       - name: Install dependencies
         run: flutter pub get
 
-      - name: Analyze the project
-        run: dart analyze
-
       - name: Run the generators
         run: flutter pub run build_runner build
+
+      - name: Analyze the project
+        run: dart analyze
 
       - name: Run tests
         run: flutter test
