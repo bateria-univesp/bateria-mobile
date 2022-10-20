@@ -5,26 +5,40 @@
 // gestures. You can also use WidgetTester to find child widgets in the widget
 // tree, read text, and verify that the values of widget properties are correct.
 
+import 'package:bateria_mobile/views/search/components/app_bar.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 
-import 'package:bateria_mobile/main.dart';
-
 void main() {
-  testWidgets('Counter increments smoke test', (WidgetTester tester) async {
-    // Build our app and trigger a frame.
-    await tester.pumpWidget(const BateriaApp());
+  testWidgets('App name is shown on app bar', (WidgetTester tester) async {
+    // Arrange and act
+    await tester.pumpWidget(getAppWrapper(const SearchPageAppBar()));
 
-    // Verify that our counter starts at 0.
-    expect(find.text('0'), findsOneWidget);
-    expect(find.text('1'), findsNothing);
-
-    // Tap the '+' icon and trigger a frame.
-    await tester.tap(find.byIcon(Icons.add));
-    await tester.pump();
-
-    // Verify that our counter has incremented.
-    expect(find.text('0'), findsNothing);
-    expect(find.text('1'), findsOneWidget);
+    // Assert
+    expect(find.text('Bateria'), findsOneWidget);
   });
+
+  testWidgets('Search opens a new page with correct placeholder',
+      (WidgetTester tester) async {
+    // Arrange and act
+    await tester.pumpWidget(getAppWrapper(const SearchPageAppBar()));
+
+    // Assert
+    expect(find.byIcon(Icons.search), findsOneWidget);
+    expect(find.byTooltip('Buscar por endereço'), findsOneWidget);
+
+    expect(find.byIcon(Icons.my_location_sharp), findsOneWidget);
+    expect(find.byTooltip('Buscar por localização atual'), findsOneWidget);
+  });
+}
+
+Widget getAppWrapper(Widget child) {
+  return ProviderScope(
+    child: MaterialApp(
+      home: Scaffold(
+        body: child,
+      ),
+    ),
+  );
 }
