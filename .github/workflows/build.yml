@@ -2,7 +2,7 @@ name: Bateria mobile build
 
 on:
   push:
-    branches: [ master, 21-set-up-cicd-to-build-the-app ]
+    branches: [ main, master ]
 
 jobs:
   test-and-build:
