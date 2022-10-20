@@ -38,7 +38,7 @@ jobs:
         run: flutter test
 
       - name: Build APK
-        run: flutter build apk --release
+        run: flutter build apk --release --dart-define=MAPS_API_KEY=${{ secrets.mapsApiKey }}
         env:
           MAPS_API_KEY: ${{ secrets.mapsApiKey }}
 
