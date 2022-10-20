@@ -1,0 +1,49 @@
+name: Bateria mobile build
+
+on:
+  push:
+    branches: [ main, master ]
+
+jobs:
+  test-and-build:
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v2
+
+      - name: Setup Flutter SDK
+        uses: flutter-actions/setup-flutter@v2
+        with:
+          channel: stable
+          version: 3.3.2
+
+      - name: Setup JDK
+        uses: actions/setup-java@v1
+        with:
+          java-version: 11
+
+      - name: Setup Android SDK
+        uses: android-actions/setup-android@v2
+
+      - name: Install dependencies
+        run: flutter pub get
+
+      - name: Run the generators
+        run: flutter pub run build_runner build
+
+      - name: Analyze the project
+        run: dart analyze
+
+      - name: Run tests
+        run: flutter test
+
+      - name: Build APK
+        run: flutter build apk --release --dart-define=MAPS_API_KEY=${{ secrets.mapsApiKey }}
+        env:
+          MAPS_API_KEY: ${{ secrets.mapsApiKey }}
+
+      - name: Upload articfact
+        uses: actions/upload-artifact@v3
+        with:
+          name: apk
+          path: build/app/outputs/flutter-apk/app-release.apk

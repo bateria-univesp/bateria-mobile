@@ -9,11 +9,7 @@ final bateriaApiClient = Provider((ref) => BateriaApiClient());
 final googleMapsApiClient = Provider((ref) => GoogleMapsApiClient());
 
 void main() {
-  runApp(
-    const ProviderScope(
-      child: BateriaApp(),
-    ),
-  );
+  runApp(const BateriaApp());
 }
 
 class BateriaApp extends StatelessWidget {
@@ -22,10 +18,12 @@ class BateriaApp extends StatelessWidget {
   // This widget is the root of your application.
   @override
   Widget build(BuildContext context) {
-    return MaterialApp(
-      title: 'Flutter Demo',
-      theme: BateriaTheme.buildTheme(),
-      home: const SearchPage(),
+    return ProviderScope(
+      child: MaterialApp(
+        title: 'Flutter Demo',
+        theme: BateriaTheme.buildTheme(),
+        home: const SearchPage(),
+      ),
     );
   }
 }
