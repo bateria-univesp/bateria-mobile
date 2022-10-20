@@ -39,6 +39,8 @@ jobs:
 
       - name: Build APK
         run: flutter build apk --release
+        env:
+          MAPS_API_KEY: ${{ secrets.mapsApiKey }}
 
       - name: Upload articfact
         uses: actions/upload-artifact@v3
